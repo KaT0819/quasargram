@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Quasargram App",
   "productName": "Quasargram",
-  "author": "Katsuyuki Toki <katuyuki.toki@gmail.com>",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.vue ./",
@@ -13,7 +12,7 @@
     "@quasar/extras": "^1.0.0",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
-    "quasar": "^1.18.10"
+    "quasar": "^1.0.0"
   },
   "devDependencies": {
     "@quasar/app": "^2.0.0",
