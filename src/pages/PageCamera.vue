@@ -46,12 +46,13 @@
       <div class="row justify-center q-ma-md">
         <q-input
           v-model="post.location"
+          :loading="locationLoading"
           class="col col-sm-6"
           label="Location"
           dense
         />
         <template>
-          <q-btn round dense flat icon="eva-pin-outline" />
+          <q-btn v-if="!locationLoading && locationSupported" @click="getLocation" round dense flat icon="eva-pin-outline" />
         </template>
       </div>
       <div class="row justify-center q-ma-md">
@@ -79,7 +80,14 @@ export default {
       imageCaptured: false,
       imageUpload: [],
       hasCameraSupport: true,
+      locationLoading: false,
     };
+  },
+  computed: {
+    locationSupported() {
+      if ('geolocation' in navigator) return true
+      return false
+    }
   },
   methods: {
     initCamera() {
@@ -103,7 +111,7 @@ export default {
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       this.imageCaptured = true;
       this.post.photo = this.dataURItoBlob(canvas.toDataURL());
-      this.disableCamera()
+      this.disableCamera();
     },
     captureImageFallback(file) {
       this.post.photo = file;
@@ -112,22 +120,22 @@ export default {
       let context = canvas.getContext("2d");
 
       var reader = new FileReader();
-      reader.onload = event => {
+      reader.onload = (event) => {
         var img = new Image();
         img.onload = () => {
           canvas.width = img.width;
           canvas.height = img.height;
           context.drawImage(img, 0, 0);
-          this.imageCaptured = true
+          this.imageCaptured = true;
         };
         img.src = event.target.result;
       };
       reader.readAsDataURL(file);
     },
     disableCamera() {
-      this.$refs.video.srcObject.getVideoTracks().foreach(track => {
-        track.stop()
-      })
+      this.$refs.video.srcObject.getVideoTracks().foreach((track) => {
+        track.stop();
+      });
     },
     dataURItoBlob(dataURI) {
       // convert base64 to raw binary data held in a string
@@ -152,15 +160,57 @@ export default {
       var blob = new Blob([ab], { type: mimeString });
       return blob;
     },
+    getLocation() {
+      this.locationLoading = true
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.getCityAndCountry(position);
+        },
+        (err) => {
+          console.log("err:", err);
+        },
+        { timeout: 7000 }
+      );
+    },
+    getCityAndCountry(position) {
+      let apiUrl = `https://geocode.xyz/${position.coords.latitude},${position.coords.longitude}?json=1`;
+      this.$axios
+        .get(apiUrl)
+        .then((result) => {
+          console.log("result:", result);
+          this.locationSuccess(result);
+        })
+        .catch((err) => {
+          this.locationError();
+        });
+    },
+    locationSuccess(result) {
+      this.post.location = result.data.city;
+      if (result.data.staddress) {
+        this.post.location += ` ${result.data.staddress}`;
+      }
+      if (result.data.country) {
+        this.post.location += `, ${result.data.country}`;
+      }
+      this.locationLoading = false
+    },
+    locationError() {
+      $q.dialog({
+        title: "エラー",
+        message: "ロケーションが見つかりませんでした。",
+      })
+      this.locationLoading = false
+    },
   },
   mounted() {
     this.initCamera();
   },
   beforeDestroy() {
     if (this.hasCameraSupport()) {
-      this.disableCamera()
+      this.disableCamera();
     }
-  }
+    this.locationLoading = false
+  },
 };
 </script>
 
