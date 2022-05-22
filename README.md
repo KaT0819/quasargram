@@ -5,6 +5,12 @@ Quasargram App
 https://www.youtube.com/watch?v=opmng7llVJ0
 His Tutorials are awesome. Thanks
 
+## setup
+```
+# for camera
+npm install --save md-gum-polyfill
+```
+
 
 ## Install the dependencies
 ```bash
