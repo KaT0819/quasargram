@@ -39,3 +39,23 @@ quasar build
 
 ### Customize the configuration
 See [Configuring quasar.conf.js](https://v1.quasar.dev/quasar-cli/quasar-conf-js).
+
+
+
+### backend
+- express.js
+``` shell
+npm install express --save
+```
+- nodemon
+``` shell
+npm install -g nodemon
+```
+- heroku build
+``` shell
+heroku plugins:install heroku-builds
+```
+- firebase
+``` shell
+npm install firebase-admin --save
+```
