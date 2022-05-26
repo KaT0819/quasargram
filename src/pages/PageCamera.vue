@@ -217,6 +217,8 @@ export default {
       this.locationLoading = false;
     },
     addPost() {
+      this.$q.loading.show();
+
       let formData = new FormData();
       formData.append("id", this.post.id);
       formData.append("caption", this.post.caption);
@@ -234,13 +236,14 @@ export default {
             message: "投稿しました！",
             actions: [{ label: "Dismiss", color: "white" }],
           });
+          this.$q.loading.hide();
         })
         .catch((err) => {
           $q.dialog({
             title: "エラー",
             message: "投稿が失敗しました。",
           });
-          this.locationLoading = false;
+          this.$q.loading.hide();
         });
     },
   },
