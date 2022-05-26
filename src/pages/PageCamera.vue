@@ -52,11 +52,24 @@
           dense
         />
         <template>
-          <q-btn v-if="!locationLoading && locationSupported" @click="getLocation" round dense flat icon="eva-pin-outline" />
+          <q-btn
+            v-if="!locationLoading && locationSupported"
+            @click="getLocation"
+            round
+            dense
+            flat
+            icon="eva-pin-outline"
+          />
         </template>
       </div>
       <div class="row justify-center q-ma-md">
-        <q-btn color="primary" label="投稿する" rounded unelevated />
+        <q-btn
+          @click="addPost"
+          color="primary"
+          label="投稿する"
+          rounded
+          unelevated
+        />
       </div>
     </div>
   </q-page>
@@ -85,9 +98,9 @@ export default {
   },
   computed: {
     locationSupported() {
-      if ('geolocation' in navigator) return true
-      return false
-    }
+      if ("geolocation" in navigator) return true;
+      return false;
+    },
   },
   methods: {
     initCamera() {
@@ -133,7 +146,7 @@ export default {
       reader.readAsDataURL(file);
     },
     disableCamera() {
-      this.$refs.video.srcObject.getVideoTracks().foreach((track) => {
+      this.$refs.video.srcObject.getVideoTracks().forEach((track) => {
         track.stop();
       });
     },
@@ -161,7 +174,7 @@ export default {
       return blob;
     },
     getLocation() {
-      this.locationLoading = true
+      this.locationLoading = true;
       navigator.geolocation.getCurrentPosition(
         (position) => {
           this.getCityAndCountry(position);
@@ -192,24 +205,42 @@ export default {
       if (result.data.country) {
         this.post.location += `, ${result.data.country}`;
       }
-      this.locationLoading = false
+      this.locationLoading = false;
     },
     locationError() {
       $q.dialog({
         title: "エラー",
         message: "ロケーションが見つかりませんでした。",
-      })
-      this.locationLoading = false
+      });
+      this.locationLoading = false;
+    },
+    addPost() {
+      let formData = new FormData();
+      formData.append("id", this.post.id);
+      formData.append("caption", this.post.caption);
+      formData.append("location", this.post.location);
+      formData.append("date", this.post.date);
+      formData.append("file", this.post.photo, this.post.id, +".png");
+      console.log("formData:", formData);
+
+      this.$axios
+        .post(`${process.env.API}/createPost`, formData)
+        .then((response) => {
+          console.log("response:", response);
+        })
+        .catch((err) => {
+          console.log("err:", err);
+        });
     },
   },
   mounted() {
     this.initCamera();
   },
   beforeDestroy() {
-    if (this.hasCameraSupport()) {
+    if (this.hasCameraSupport) {
       this.disableCamera();
     }
-    this.locationLoading = false
+    this.locationLoading = false;
   },
 };
 </script>

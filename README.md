@@ -59,3 +59,13 @@ heroku plugins:install heroku-builds
 ``` shell
 npm install firebase-admin --save
 ```
+- busboy
+``` shell
+npm install busboy --save
+```
+
+
+## Guide
+### Firebase Storage
+https://firebase.google.com/docs/storage/admin/start
+

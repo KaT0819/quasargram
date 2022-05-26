@@ -11,6 +11,10 @@
 const ESLintPlugin = require('eslint-webpack-plugin')
 const { QDialog } = require('quasar')
 
+let API_LOCAL = 'http://localhost:3000',
+    API_PROD = 'https://quasagram-backend-k2o.herokuapp.com'
+
+
 module.exports = function (/* ctx */) {
   return {
     // https://v1.quasar.dev/quasar-cli/supporting-ts
@@ -48,6 +52,9 @@ module.exports = function (/* ctx */) {
 
     // Full list of options: https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
+      env: {
+        API: API_LOCAL // API_LOCAL | API_PROD
+      },
       vueRouterMode: 'hash', // available values: 'hash', 'history'
 
       // transpile: false,
