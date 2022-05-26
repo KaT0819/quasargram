@@ -20,6 +20,7 @@ let busboy = require('busboy');
 let path = require('path');
 let os = require('os');
 let fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 /**
  * config - express
@@ -62,8 +63,10 @@ app.post('/createPost', (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
 
   console.log('POST request');
+  let uuid = uuidv4()
   const bb = busboy({ headers: req.headers });
   let fields = {}
+  let fileData = {}
 
   bb.on("file", (name, file, info) => {
     const { filename, encoding, mimeType } = info;
@@ -73,13 +76,9 @@ app.post('/createPost', (req, res) => {
       encoding,
       mimeType
     );
-    file
-      .on("data", (data) => {
-        console.log(`File [${name}] got ${data.length} bytes`);
-      })
-      .on("close", () => {
-        console.log(`File [${name}] done`);
-      });
+    let filepath = path.join(os.tmpdir(), filename)
+    file.pipe(fs.createWriteStream(filepath))
+    fileData = { filepath, mimeType }
   });
   bb.on("field", (name, val, info) => {
     console.log(`Field [${name}]: value: %j`, val);
@@ -87,17 +86,38 @@ app.post('/createPost', (req, res) => {
   });
   bb.on("close", () => {
     console.log('fields:', fields);
-    db.collection('posts').doc(fields.id).set({
-      id: fields.id,
-      caption: fields.caption,
-      location: fields.location,
-      date: parseInt(fields.date),
-      imageUrl: 'https://firebasestorage.googleapis.com/v0/b/quasargram-be710.appspot.com/o/VkPf2b6.jpeg?alt=media&token=8355119b-14f1-49c3-b2d3-edd42dcb3780'
-    })
-    console.log("Done parsing form!");
-    // res.writeHead(303, { Connection: "close", Location: "/" });
-    res.send('Done parsing form!');
+    console.log('uuid:', uuid);
+
+    bucket.upload(
+      fileData.filepath,
+      {
+        uploadType: 'media',
+        metadata: {
+          contentType: fileData.mimeType,
+          firebaseStrageDownloadToken: uuid
+        }
+      },
+      (err, uploadedFile) => {
+        if (!err) {
+          createDocument(uploadedFile)
+        }
+      }
+    )
+
+    function createDocument(uploadedFile) {
+      db.collection('posts').doc(fields.id).set({
+        id: fields.id,
+        caption: fields.caption,
+        location: fields.location,
+        date: parseInt(fields.date),
+        imageUrl: `https://firebasestorage.googleapis.com/v0/b/${
+          bucket.name }/o/${ uploadedFile.name }?alt=media&token=${ uuid }`
+      }).then(() => {
+        res.send('Post added: ' + fields.id)
+      })
+    }
   });
+
   req.pipe(bb);
 });
 
