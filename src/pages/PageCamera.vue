@@ -18,6 +18,7 @@
       <q-btn
         v-if="hasCameraSupport"
         @click="captureImage"
+        :disable="imageCaptured"
         color="grey-10"
         icon="eva-camera"
         size="lg"
@@ -39,7 +40,7 @@
         <q-input
           v-model="post.caption"
           class="col col-sm-6"
-          label="Caption"
+          label="Caption *"
           dense
         />
       </div>
@@ -65,6 +66,7 @@
       <div class="row justify-center q-ma-md">
         <q-btn
           @click="addPost"
+          :disable="!post.caption || !post.photo"
           color="primary"
           label="投稿する"
           rounded
@@ -227,9 +229,18 @@ export default {
         .post(`${process.env.API}/createPost`, formData)
         .then((response) => {
           console.log("response:", response);
+          this.$router.push("/");
+          this.$q.notify({
+            message: "投稿しました！",
+            actions: [{ label: "Dismiss", color: "white" }],
+          });
         })
         .catch((err) => {
-          console.log("err:", err);
+          $q.dialog({
+            title: "エラー",
+            message: "投稿が失敗しました。",
+          });
+          this.locationLoading = false;
         });
     },
   },
