@@ -43,25 +43,66 @@ See [Configuring quasar.conf.js](https://v1.quasar.dev/quasar-cli/quasar-conf-js
 
 
 ### backend
-- express.js
+
 ``` shell
+cd backend
+
+# setup
 npm install express --save
-```
-- nodemon
-``` shell
 npm install -g nodemon
-```
-- heroku build
-``` shell
-heroku plugins:install heroku-builds
-```
-- firebase
-``` shell
 npm install firebase-admin --save
-```
-- busboy
-``` shell
 npm install busboy --save
+heroku plugins:install heroku-builds
+
+# run
+npm start
+```
+
+
+## Deploy
+for Firebase Hosting
+```
+# setup
+npm install -g firebase-tools
+# login
+firebase login
+# init
+firebase init
+
+? Please select an option: Use an existing project
+? Select a default Firebase project for this directory: quasargram-be710 (Quasargram)
+? What do you want to use as your public directory? dist/spa
+? Configure as a single-page app (rewrite all urls to /index.html)? No
+? Set up automatic builds and deploys with GitHub? No
++  Wrote dist/spa/404.html
+? File dist/spa/index.html already exists. Overwrite? No
+i  Skipping write of dist/spa/index.html
+
+i  Writing configuration info to firebase.json...
+i  Writing project information to .firebaserc...
+
++  Firebase initialization complete!
+
+# Deploy
+firebase deploy
+
+
+=== Deploying to 'quasargram-be710'...
+
+i  deploying hosting
+i  hosting[quasargram-be710]: beginning deploy...
+i  hosting[quasargram-be710]: found 28 files in dist/spa
++  hosting[quasargram-be710]: file upload complete
+i  hosting[quasargram-be710]: finalizing version...
++  hosting[quasargram-be710]: version finalized
+i  hosting[quasargram-be710]: releasing new version...
++  hosting[quasargram-be710]: release complete
+
++  Deploy complete!
+
+Project Console: https://console.firebase.google.com/project/quasargram-be710/overview
+Hosting URL: https://quasargram-be710.web.app
+
 ```
 
 
@@ -69,3 +110,6 @@ npm install busboy --save
 ### Firebase Storage
 https://firebase.google.com/docs/storage/admin/start
 
+
+### Firebase Hosting
+https://firebase.google.com/docs/hosting?authuser=0&hl=ja
